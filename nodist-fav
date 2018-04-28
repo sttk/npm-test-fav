@@ -30,7 +30,7 @@ for v in `nodist list | tail -n +2 | extract_version`; do
   nodist ${v}
   node -v
   npm -v
-  node ${command}
+  ${command}
 done
 
 echo "Back to ${current}"
