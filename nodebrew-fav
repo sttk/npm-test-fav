@@ -1,0 +1,38 @@
+#!/bin/bash
+
+status="first"
+current=
+command=$(node -e "console.log(require('./package').scripts.test)")
+command=node_modules/.bin/${command}
+
+for version in `nodebrew list`; do
+  if [ "${status}" == "end" ]; then
+    current=${version}
+    break
+
+  elif [ "${version}" == "current:" ]; then
+    status="end"
+    continue
+
+  elif [ "${status}" == "skip" ]; then
+    continue
+
+  elif [ "${status}" == "first" ]; then
+    status=
+
+  else
+    read -p "Continue? (Y/n) " userinput
+    if [ "${userinput}" == "n" ]; then
+      status="skip"
+      continue
+    fi
+  fi
+
+  nodebrew use ${version}
+  node -v
+  npm -v
+  ${command}
+done
+
+echo "Back to ${current}"
+nodebrew use ${current}
