@@ -3,10 +3,11 @@
 status="first"
 current=
 
-# Because npm<2.7 does not support scoped package, this tool gets the command
-# of `scripts.test` in package.json and runs it for a scoped package.
 command=$(node -e "console.log(require('./package').scripts.test)")
-command=node_modules/.bin/${command}
+exename=$(echo ${command} | cut -f 1 -d " ")
+if [ -f node_modules/.bin/${exename} ]; then
+  command=node_modules/.bin/${command}
+fi
 
 function extract_version() {
   sed 's|^[> ] *||' | sed 's|  *(.*$||'
