@@ -1,8 +1,5 @@
 #!/bin/bash
 
-status="first"
-current=
-
 command=$(node -e "console.log(require('./package').scripts.test)")
 exename=$(echo ${command} | cut -f 1 -d " ")
 if [ -f node_modules/.bin/${exename} ]; then
@@ -17,21 +14,21 @@ function current_version() {
   nodist list | grep '^>' | extract_version
 }
 
-current=`current_version`
+current=$(current_version)
 
-for v in `nodist list | tail -n +2 | extract_version`; do
-  if [ "${status}" != "first" ]; then
-    read -p "Continue? (Y/n) " userinput
-    if [ "${userinput}" == "n" ]; then
-      break
-    fi
-  fi
-  status=""
-
-  nodist ${v}
+for version in $(nodist list | tail -n +2 | extract_version); do
+  nodist ${version}
+  nodist npm match
   node -v
   npm -v
   ${command}
+  exitcd=$?
+  if [[ $exitcd -gt 0 ]]; then
+    read -p "Continue? (Y/n) " userinput
+    if [ "$(echo ${userinput} | tr '[:upper:]' '[:lower:]')" == "n" ]; then
+      break
+    fi
+  fi
 done
 
 echo "Back to ${current}"
